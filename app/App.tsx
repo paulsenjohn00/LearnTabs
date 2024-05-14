@@ -51,32 +51,30 @@ export class App extends React.Component<any, any> {
     this.renderTabImage = this.renderTabImage.bind(this);
   }
   render() {
-  return (
-    <NavigationContainer>
-      <Tab.Navigator>
-        {TabList.map(tab => {
-          return <Tab.Screen
-          key={tab.name}
-          name={tab.name}
-          component={tab.component}
-          options={{
-            title: tab.name,
-            tabBarIcon: ({ focused, size }) =>
-              this.renderTabImage(tab, focused, size)
-          }}
-          />
-        })}
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
+    return (
+      <NavigationContainer>
+        <Tab.Navigator>
+          {TabList.map(tab => {
+            return tab.bottomNavigation ? <Tab.Screen
+            key={tab.name}
+            name={tab.name}
+            component={tab.component}
+            options={{
+              title: tab.name,
+              tabBarIcon: ({ focused, size }) =>
+                this.renderTabImage(tab, focused, size)
+            }}
+            /> : null
+          })}
+        </Tab.Navigator>
+      </NavigationContainer>
+    );
 }
 
 renderTabImage(tab:any, focused:boolean, size:number) {
    return (<Image source={{uri: focused ? tab.imageFocused : tab.image}} style={{ width: size, height: size }}/>);
   }
 }
-
-
 
 const styles = StyleSheet.create({
   sectionContainer: {

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { ParamListBase, useNavigation } from "@react-navigation/native";
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 
 function HomeScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
   const openLibrary = () => {
-    // @ts-ignore
     navigation.navigate("Settings");
   };
 
