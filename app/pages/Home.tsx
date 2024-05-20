@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, TouchableWithoutFeedback, View } from "react-native";
-import Svg, { Circle, G, Path, Text, TextPath, Defs, Line } from "react-native-svg";
+import Svg, { Circle, G, Path, Text } from "react-native-svg";
 
 function HomeScreen() {
   const handleSpacePress = (space) => {
@@ -15,7 +15,7 @@ function HomeScreen() {
 }
 
 function Dartboard({ onSpacePress }) {
-  const ringCategories = ['Friends','Faith','Finance','Fulfillment','Fitness','Food','Fun','Family']
+  const ringCategories = ['FINANCE', 'FULFILLMENT', 'FITNESS', 'FOOD', 'FUN', 'FAMILY', 'FRIENDS', 'FAITH'];
   const initialOuterRing = Array(8).fill('white');
   const initialMidRing = Array(8).fill('white');
   const initialCenterRing = Array(8).fill('white');
@@ -23,58 +23,55 @@ function Dartboard({ onSpacePress }) {
   const [midRing, setMidRing] = useState(initialOuterRing);
   const [centerRing, setCenterRing] = useState(initialOuterRing);
 
-  const handlePress = (index: number, ringOuterRing: any) => {
-    const deselectRing = (ring: any) => {
-      return ring.map((color: string, i: number) => {
+  const handlePress = (index, ringOuterRing) => {
+    const deselectRing = (ring) => {
+      return ring.map((color, i) => {
         if (i === index) {
           return color !== 'white' ? 'white' : color;
         }
-        return color
-      })
-    }
+        return color;
+      });
+    };
 
-      if (ringOuterRing === outerRing) {
-        const highlightRing = ringOuterRing.map((color:string, i:number) => {
-          if (i === index) {
-            return 'green'
-          }
-          return color;
-        });
-        setOuterRing(highlightRing);
-        setMidRing(deselectRing(midRing));
-        setCenterRing(deselectRing(centerRing));
-
-      } else if (ringOuterRing === midRing) {
-        const highlightRing = ringOuterRing.map((color:string, i:number) => {
-          if (i === index) {
-            return 'yellow'
-          }
-          return color;
-        });
-        setMidRing(highlightRing);
-        setOuterRing(deselectRing(outerRing));
-        setCenterRing(deselectRing(centerRing));
-
-      } else if (ringOuterRing === centerRing) {
-        const highlightRing = ringOuterRing.map((color:string, i:number) => {
-          if (i === index) {
-            return 'red'
-          }
-          return color;
-        });
-        setCenterRing(highlightRing);
-        setOuterRing(deselectRing(outerRing));
-        setMidRing(deselectRing(midRing));
-
-      } else console.log('Error has occurred.')
+    if (ringOuterRing === outerRing) {
+      const highlightRing = ringOuterRing.map((color, i) => {
+        if (i === index) {
+          return '#DF3636';
+        }
+        return color;
+      });
+      setOuterRing(highlightRing);
+      setMidRing(deselectRing(midRing));
+      setCenterRing(deselectRing(centerRing));
+    } else if (ringOuterRing === midRing) {
+      const highlightRing = ringOuterRing.map((color, i) => {
+        if (i === index) {
+          return '#F3A61E';
+        }
+        return color;
+      });
+      setMidRing(highlightRing);
+      setOuterRing(deselectRing(outerRing));
+      setCenterRing(deselectRing(centerRing));
+    } else if (ringOuterRing === centerRing) {
+      const highlightRing = ringOuterRing.map((color, i) => {
+        if (i === index) {
+          return '#549B4C';
+        }
+        return color;
+      });
+      setCenterRing(highlightRing);
+      setOuterRing(deselectRing(outerRing));
+      setMidRing(deselectRing(midRing));
+    } else console.log('Error has occurred.');
 
     onSpacePress(index + 1);
   };
 
   const angle = 360 / initialOuterRing.length;
 
-  const createCircle = ({ radius, ringNum, colorList = null }: { radius: number, ringNum: any, colorList: any}) => {
-    return ringNum.map((_: number, index: number) => {
+  const createCircle = ({ radius, ringNum, colorList}) => {
+    return ringNum.map((label, index) => {
       const startAngle = index * angle;
       const endAngle = (index + 1) * angle;
 
@@ -85,20 +82,33 @@ function Dartboard({ onSpacePress }) {
 
       const d = `M50,50 L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
 
-      const textX = 50 + (radius) * Math.cos((Math.PI / 180) * (startAngle + angle / 2));
-      const textY = 50 + (radius) * Math.sin((Math.PI / 180) * (startAngle + angle / 2));
+      const textX = 50 + (radius + 5) * Math.cos((Math.PI / 180) * (startAngle + angle / 2));
+      const textY = 50 + (radius + 5) * Math.sin((Math.PI / 180) * (startAngle + angle / 2));
 
       return (
         <G key={index}>
           <TouchableWithoutFeedback onPress={() => handlePress(index, colorList)}>
             <Path
               d={d}
-              fill={colorList !== ringCategories ? colorList[index] : 'blue'}
+              fill={colorList !== ringCategories ? colorList[index] : '#3D67B1'}
               stroke="black"
               strokeWidth="0.5"
-              id={'outerRingPath'}
             />
           </TouchableWithoutFeedback>
+          {colorList === ringCategories && (
+            <Text
+              x={textX}
+              y={textY + 10}
+              fill="white"
+              fontSize="4"
+              fontWeight="bold"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              transform={`rotate(${endAngle + angle + 22}, ${textX}, ${textY})`}
+            >
+              {label}
+            </Text>
+          )}
         </G>
       );
     });
@@ -107,12 +117,12 @@ function Dartboard({ onSpacePress }) {
   return (
     <View style={styles.container}>
       <Svg height="360" width="360" viewBox="-8 0 116 100">
-        <Circle cx="50" cy="50" r="56" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 56, ringNum: ringCategories, colorList: ringCategories })}
-        <Circle cx="50" cy="50" r="50" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 50, ringNum: initialOuterRing, colorList: outerRing })}
-        <Circle cx="50" cy="50" r="35" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 35, ringNum: initialMidRing, colorList: midRing })}
+        <Circle cx="50" cy="50" r="57" fill="white" stroke="black" strokeWidth="0.5" />
+        {createCircle({ radius: 57, ringNum: ringCategories, colorList: ringCategories })}
+        <Circle cx="50" cy="50" r="48" fill="white" stroke="black" strokeWidth="0.5" />
+        {createCircle({ radius: 48, ringNum: initialOuterRing, colorList: outerRing })}
+        <Circle cx="50" cy="50" r="34" fill="white" stroke="black" strokeWidth="0.5" />
+        {createCircle({ radius: 34, ringNum: initialMidRing, colorList: midRing })}
         <Circle cx="50" cy="50" r="20" fill="white" stroke="black" strokeWidth="0.5" />
         {createCircle({ radius: 20, ringNum: initialCenterRing, colorList: centerRing })}
       </Svg>
@@ -125,17 +135,17 @@ const styles = StyleSheet.create({
     backgroundColor: "blue",
     padding: 5,
     borderRadius: 20,
-    marginTop: 20
+    marginTop: 20,
   },
   buttonText: {
     color: "white",
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   container: {
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-  }
+  },
 });
 
 export default HomeScreen;
