@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, TouchableWithoutFeedback, View } from "react-native";
-import Svg, { Circle, G, Path, Text } from "react-native-svg";
+import { StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Text, Alert } from "react-native";
+import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
 
 function HomeScreen() {
   const handleSpacePress = ({ space }: { space: any }) => {
-    console.log(`You pressed the ${space} space!`);
+    // console.log(`You pressed the ${space} space!`);
   };
 
   return (
@@ -16,12 +16,50 @@ function HomeScreen() {
 
 function Dartboard({ onSpacePress }: {onSpacePress: any}) {
   const ringCategories = ['FINANCE', 'FULFILLMENT', 'FITNESS', 'FOOD', 'FUN', 'FAMILY', 'FRIENDS', 'FAITH'];
-  const initialOuterRing = Array(8).fill('white');
-  const initialMidRing = Array(8).fill('white');
-  const initialCenterRing = Array(8).fill('white');
-  const [outerRing, setOuterRing] = useState(initialOuterRing);
-  const [midRing, setMidRing] = useState(initialOuterRing);
-  const [centerRing, setCenterRing] = useState(initialOuterRing);
+  const initialColors = Array(ringCategories.length).fill('white');
+  const [outerRing, setOuterRing] = useState(initialColors);
+  const [midRing, setMidRing] = useState(initialColors);
+  const [centerRing, setCenterRing] = useState(initialColors);
+
+  const onSubmit = () => {
+    let blanks: number[] = [];
+    let message = "It looks like you have left the following areas blank: "
+    let sendAlert = false
+
+    centerRing.map((color:string, index:number) => {
+      if (color === 'white') {
+        sendAlert = true;
+        blanks.push(index)
+      }
+    });
+
+    if (sendAlert) {
+      blanks.map((blank) => {
+        message += ringCategories[blank] + ', '
+      })
+      //gets rid of the comma and space after the last category in the alert
+      message = message.slice(0, -2);
+      return Alert.alert(
+        'Submit?',
+        message,
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'Submit with blanks', onPress: () => {
+              setOuterRing(initialColors);
+              setMidRing(initialColors);
+              setCenterRing(initialColors);
+            }},
+        ]
+      );
+    }
+    setOuterRing(initialColors);
+    setMidRing(initialColors);
+    setCenterRing(initialColors);
+  }
 
   const handlePress = (index: number, ringOuterRing: any) => {
     const highlightRing = (ring: any, highlightColor: string) => {
@@ -53,9 +91,9 @@ function Dartboard({ onSpacePress }: {onSpacePress: any}) {
     onSpacePress(index + 1);
   };
 
-  const angle = 360 / initialOuterRing.length;
+  const angle = 360 / initialColors.length;
 
-  const createCircle = ({ radius, ringNum, colorList}: {radius:number, ringNum:any, colorList:any}) => {
+  const createCircle = ({ radius, ringNum}: {radius:number, ringNum:any}) => {
     return ringNum.map((label:string, index:number) => {
       const startAngle = index * angle;
       const endAngle = (index + 1) * angle;
@@ -72,16 +110,16 @@ function Dartboard({ onSpacePress }: {onSpacePress: any}) {
 
       return (
         <G key={index}>
-          <TouchableWithoutFeedback onPress={() => handlePress(index, colorList)}>
+          <TouchableWithoutFeedback onPress={() => handlePress(index, ringNum)}>
             <Path
               d={d}
-              fill={colorList !== ringCategories ? colorList[index] : '#3D67B1'}
+              fill={ringNum !== ringCategories ? ringNum[index] : '#3D67B1'}
               stroke="black"
               strokeWidth="0.5"
             />
           </TouchableWithoutFeedback>
-          {colorList === ringCategories && (
-            <Text
+          {ringNum === ringCategories && (
+            <SvgText
               x={textX}
               y={textY + 10}
               fill="white"
@@ -92,7 +130,7 @@ function Dartboard({ onSpacePress }: {onSpacePress: any}) {
               transform={`rotate(${endAngle + angle + 22}, ${textX}, ${textY})`}
             >
               {label}
-            </Text>
+            </SvgText>
           )}
         </G>
       );
@@ -103,14 +141,22 @@ function Dartboard({ onSpacePress }: {onSpacePress: any}) {
     <View style={styles.container}>
       <Svg height="360" width="360" viewBox="-8 0 116 100">
         <Circle cx="50" cy="50" r="57" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 57, ringNum: ringCategories, colorList: ringCategories })}
+        {createCircle({ radius: 57, ringNum: ringCategories })}
         <Circle cx="50" cy="50" r="48" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 48, ringNum: initialOuterRing, colorList: outerRing })}
+        {createCircle({ radius: 48, ringNum: outerRing })}
         <Circle cx="50" cy="50" r="34" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 34, ringNum: initialMidRing, colorList: midRing })}
+        {createCircle({ radius: 34, ringNum: midRing })}
         <Circle cx="50" cy="50" r="20" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 20, ringNum: initialCenterRing, colorList: centerRing })}
+        {createCircle({ radius: 20, ringNum: centerRing })}
       </Svg>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.cancelButton} onPress={() => {setOuterRing(initialColors); setCenterRing(initialColors); setMidRing(initialColors)}}>
+          <Text style={styles.submitButtonText}>Clear</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
+          <Text style={styles.submitButtonText}>Complete</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -121,6 +167,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: 20
+  },
+  submitButton: {
+    margin: 10,
+    backgroundColor:'#0A84FF', // apple blue
+    padding: 8,
+    borderRadius: 10,
+    width: 100
+  },
+  submitButtonText: {
+    color:'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 16
+  },
+  cancelButton: {
+    margin: 10,
+    backgroundColor:'#A2AAAD', // apple grey
+    padding: 8,
+    borderRadius: 10,
+    width: 100
+  }
 });
 
 export default HomeScreen;
