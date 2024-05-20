@@ -3,7 +3,7 @@ import { StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import Svg, { Circle, G, Path, Text } from "react-native-svg";
 
 function HomeScreen() {
-  const handleSpacePress = (space) => {
+  const handleSpacePress = ({ space }: { space: any }) => {
     console.log(`You pressed the ${space} space!`);
   };
 
@@ -14,7 +14,7 @@ function HomeScreen() {
   );
 }
 
-function Dartboard({ onSpacePress }) {
+function Dartboard({ onSpacePress }: {onSpacePress: any}) {
   const ringCategories = ['FINANCE', 'FULFILLMENT', 'FITNESS', 'FOOD', 'FUN', 'FAMILY', 'FRIENDS', 'FAITH'];
   const initialOuterRing = Array(8).fill('white');
   const initialMidRing = Array(8).fill('white');
@@ -23,46 +23,31 @@ function Dartboard({ onSpacePress }) {
   const [midRing, setMidRing] = useState(initialOuterRing);
   const [centerRing, setCenterRing] = useState(initialOuterRing);
 
-  const handlePress = (index, ringOuterRing) => {
-    const deselectRing = (ring) => {
-      return ring.map((color, i) => {
+  const handlePress = (index: number, ringOuterRing: any) => {
+    const highlightRing = (ring: any, highlightColor: string) => {
+      return ring.map((color: string, i: number) => {
         if (i === index) {
-          return color !== 'white' ? 'white' : color;
+          return highlightColor
         }
         return color;
       });
     };
 
     if (ringOuterRing === outerRing) {
-      const highlightRing = ringOuterRing.map((color, i) => {
-        if (i === index) {
-          return '#DF3636';
-        }
-        return color;
-      });
-      setOuterRing(highlightRing);
-      setMidRing(deselectRing(midRing));
-      setCenterRing(deselectRing(centerRing));
+      setOuterRing(highlightRing(outerRing, '#549B4C'));
+      setMidRing(highlightRing(midRing, '#549B4C'));
+      setCenterRing(highlightRing(centerRing, '#549B4C'));
+
     } else if (ringOuterRing === midRing) {
-      const highlightRing = ringOuterRing.map((color, i) => {
-        if (i === index) {
-          return '#F3A61E';
-        }
-        return color;
-      });
-      setMidRing(highlightRing);
-      setOuterRing(deselectRing(outerRing));
-      setCenterRing(deselectRing(centerRing));
+      setOuterRing(highlightRing(outerRing, 'white'));
+      setMidRing(highlightRing(midRing, '#F3A61E'));
+      setCenterRing(highlightRing(centerRing, '#F3A61E'));
+
     } else if (ringOuterRing === centerRing) {
-      const highlightRing = ringOuterRing.map((color, i) => {
-        if (i === index) {
-          return '#549B4C';
-        }
-        return color;
-      });
-      setCenterRing(highlightRing);
-      setOuterRing(deselectRing(outerRing));
-      setMidRing(deselectRing(midRing));
+      setOuterRing(highlightRing(outerRing, 'white'));
+      setMidRing(highlightRing(midRing, 'white'));
+      setCenterRing(highlightRing(centerRing, '#DF3636'));
+
     } else console.log('Error has occurred.');
 
     onSpacePress(index + 1);
@@ -70,8 +55,8 @@ function Dartboard({ onSpacePress }) {
 
   const angle = 360 / initialOuterRing.length;
 
-  const createCircle = ({ radius, ringNum, colorList}) => {
-    return ringNum.map((label, index) => {
+  const createCircle = ({ radius, ringNum, colorList}: {radius:number, ringNum:any, colorList:any}) => {
+    return ringNum.map((label:string, index:number) => {
       const startAngle = index * angle;
       const endAngle = (index + 1) * angle;
 
@@ -131,16 +116,6 @@ function Dartboard({ onSpacePress }) {
 }
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: "blue",
-    padding: 5,
-    borderRadius: 20,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
   container: {
     justifyContent: 'center',
     alignItems: 'center',
