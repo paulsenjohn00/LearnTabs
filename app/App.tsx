@@ -10,7 +10,7 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
-import HomeScreen from './pages/Home'
+import Home from './pages/Home'
 import LibraryScreen from './pages/Library'
 import SettingsScreen from './pages/Settings'
 
@@ -19,7 +19,7 @@ const TabList = [
   {
     bottomNavigation: true,
     name: 'Home',
-    component: HomeScreen,
+    component: Home,
     image: 'https://t3.ftcdn.net/jpg/01/12/43/90/360_F_112439016_DkgjEftsYWLvlYtyl7gVJo1H9ik7wu1z.jpg',
     imageFocused: 'https://t3.ftcdn.net/jpg/02/95/26/46/360_F_295264675_clwKZxogAhxLS9sD163Tgkz1WMHsq1RJ.jpg'
   },

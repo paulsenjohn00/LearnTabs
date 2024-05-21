@@ -1,164 +1,34 @@
-import React, { useState } from "react";
-import { StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Text, Alert } from "react-native";
+import React from "react";
+import {
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
 
-function HomeScreen() {
-  const handleSpacePress = ({ space }: { space: any }) => {
-    // console.log(`You pressed the ${space} space!`);
-  };
-
-  return (
-    <View style={styles.container}>
-      <Dartboard onSpacePress={handleSpacePress} />
-    </View>
-  );
+interface SliceModel {
+  id: number,
+  name: string,
+  ring: number,
+  startAngle: number,
+  endAngle: number
 }
+interface Props {
+}
+interface State {
+}
+export class Home extends React.Component<Props, State> {
 
-function Dartboard({ onSpacePress }: {onSpacePress: any}) {
-  const ringCategories = ['FINANCE', 'FULFILLMENT', 'FITNESS', 'FOOD', 'FUN', 'FAMILY', 'FRIENDS', 'FAITH'];
-  const initialColors = Array(ringCategories.length).fill('white');
-  const [outerRing, setOuterRing] = useState(initialColors);
-  const [midRing, setMidRing] = useState(initialColors);
-  const [centerRing, setCenterRing] = useState(initialColors);
 
-  const onSubmit = () => {
-    let blanks: number[] = [];
-    let message = "It looks like you have left the following areas blank: "
-    let sendAlert = false
+  render() {
 
-    centerRing.map((color:string, index:number) => {
-      if (color === 'white') {
-        sendAlert = true;
-        blanks.push(index)
-      }
-    });
 
-    if (sendAlert) {
-      blanks.map((blank) => {
-        message += ringCategories[blank] + ', '
-      })
-      //gets rid of the comma and space after the last category in the alert
-      message = message.slice(0, -2);
-      return Alert.alert(
-        'Submit?',
-        message,
-        [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'Submit with blanks', onPress: () => {
-              setOuterRing(initialColors);
-              setMidRing(initialColors);
-              setCenterRing(initialColors);
-            }},
-        ]
-      );
-    }
-    setOuterRing(initialColors);
-    setMidRing(initialColors);
-    setCenterRing(initialColors);
-  }
-
-  const handlePress = (index: number, ringOuterRing: any) => {
-    const highlightRing = (ring: any, highlightColor: string) => {
-      return ring.map((color: string, i: number) => {
-        if (i === index) {
-          return highlightColor
-        }
-        return color;
-      });
-    };
-
-    if (ringOuterRing === outerRing) {
-      setOuterRing(highlightRing(outerRing, '#549B4C'));
-      setMidRing(highlightRing(midRing, '#549B4C'));
-      setCenterRing(highlightRing(centerRing, '#549B4C'));
-
-    } else if (ringOuterRing === midRing) {
-      setOuterRing(highlightRing(outerRing, 'white'));
-      setMidRing(highlightRing(midRing, '#F3A61E'));
-      setCenterRing(highlightRing(centerRing, '#F3A61E'));
-
-    } else if (ringOuterRing === centerRing) {
-      setOuterRing(highlightRing(outerRing, 'white'));
-      setMidRing(highlightRing(midRing, 'white'));
-      setCenterRing(highlightRing(centerRing, '#DF3636'));
-
-    } else console.log('Error has occurred.');
-
-    onSpacePress(index + 1);
-  };
-
-  const angle = 360 / initialColors.length;
-
-  const createCircle = ({ radius, ringNum}: {radius:number, ringNum:any}) => {
-    return ringNum.map((label:string, index:number) => {
-      const startAngle = index * angle;
-      const endAngle = (index + 1) * angle;
-
-      const x1 = 50 + radius * Math.cos((Math.PI / 180) * startAngle);
-      const y1 = 50 + radius * Math.sin((Math.PI / 180) * startAngle);
-      const x2 = 50 + radius * Math.cos((Math.PI / 180) * endAngle);
-      const y2 = 50 + radius * Math.sin((Math.PI / 180) * endAngle);
-
-      const d = `M50,50 L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
-
-      const textX = 50 + (radius + 5) * Math.cos((Math.PI / 180) * (startAngle + angle / 2));
-      const textY = 50 + (radius + 5) * Math.sin((Math.PI / 180) * (startAngle + angle / 2));
-
-      return (
-        <G key={index}>
-          <TouchableWithoutFeedback onPress={() => handlePress(index, ringNum)}>
-            <Path
-              d={d}
-              fill={ringNum !== ringCategories ? ringNum[index] : '#3D67B1'}
-              stroke="black"
-              strokeWidth="0.5"
-            />
-          </TouchableWithoutFeedback>
-          {ringNum === ringCategories && (
-            <SvgText
-              x={textX}
-              y={textY + 10}
-              fill="white"
-              fontSize="4"
-              fontWeight="bold"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-              transform={`rotate(${endAngle + angle + 22}, ${textX}, ${textY})`}
-            >
-              {label}
-            </SvgText>
-          )}
-        </G>
-      );
-    });
-  };
-
-  return (
-    <View style={styles.container}>
-      <Svg height="360" width="360" viewBox="-8 0 116 100">
-        <Circle cx="50" cy="50" r="57" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 57, ringNum: ringCategories })}
-        <Circle cx="50" cy="50" r="48" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 48, ringNum: outerRing })}
-        <Circle cx="50" cy="50" r="34" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 34, ringNum: midRing })}
-        <Circle cx="50" cy="50" r="20" fill="white" stroke="black" strokeWidth="0.5" />
-        {createCircle({ radius: 20, ringNum: centerRing })}
-      </Svg>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.cancelButton} onPress={() => {setOuterRing(initialColors); setCenterRing(initialColors); setMidRing(initialColors)}}>
-          <Text style={styles.submitButtonText}>Clear</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-          <Text style={styles.submitButtonText}>Complete</Text>
-        </TouchableOpacity>
+    return (
+      <View style={styles.container}>
+        <Wheel />
       </View>
-    </View>
-  );
+    )
+  }
 }
 
 const styles = StyleSheet.create({
@@ -166,31 +36,158 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 20
-  },
-  submitButton: {
-    margin: 10,
-    backgroundColor:'#0A84FF', // apple blue
-    padding: 8,
-    borderRadius: 10,
-    width: 100
-  },
-  submitButtonText: {
-    color:'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontSize: 16
-  },
-  cancelButton: {
-    margin: 10,
-    backgroundColor:'#A2AAAD', // apple grey
-    padding: 8,
-    borderRadius: 10,
-    width: 100
   }
 });
+/**
+ * Support class: Wheel
+ */
+interface WheelProps {
+}
+interface WheelState {
+  slices: SliceModel[],
+}
+export class Wheel extends React.Component<WheelProps, WheelState> {
+  constructor(props: WheelProps) {
+    super(props);
 
-export default HomeScreen;
+    this.state = {
+      slices: []
+    }
+
+    this.onRingChange = this.onRingChange.bind(this);
+  }
+  componentDidMount = async () => {
+    let slices = [
+      { id: 0, name: 'Friends', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 1, name: 'Faith', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 2, name: 'Finance', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 3,name: 'Fulfillment', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 4,name: 'Fitness', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 5,name: 'Food', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 6,name: 'Fun', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 7,name: 'Family', ring: 0, startAngle: 0, endAngle: 0 },
+    ]
+    const angle = 360 / slices.length
+
+    for (let i=0; i<slices.length; i++) {
+      slices[i].startAngle = i * angle;
+      slices[i].endAngle = (i + 1) * angle;
+    }
+    this.setState({slices})
+  }
+
+  onRingChange(id:number, value:number) {
+    let {slices} = this.state;
+    slices[id].ring = value;
+    this.setState({slices})
+  }
+
+  render() {
+    const {slices} = this.state;
+    const vSlices = slices.map((slice) =>
+      <>
+        <TextRing slice={slice} radius={57}/>
+        <ColorRing slice={slice} radius={48} level={3} onRingChange={this.onRingChange}/>
+        <ColorRing slice={slice} radius={34} level={2} onRingChange={this.onRingChange}/>
+        <ColorRing slice={slice} radius={20} level={1} onRingChange={this.onRingChange}/>
+      </>
+    )
+    return <Svg height="360" width="360" viewBox="-8 0 116 100">
+      {/*<Circle cx="50" cy="50" r="57" fill="white" stroke="black" strokeWidth="0.5" />*/}
+      {/*<Circle cx="50" cy="50" r="48" fill="white" stroke="black" strokeWidth="0.5" />*/}
+      {/*<Circle cx="50" cy="50" r="34" fill="white" stroke="black" strokeWidth="0.5" />*/}
+      {/*<Circle cx="50" cy="50" r="20" fill="white" stroke="black" strokeWidth="0.5" />*/}
+      {vSlices}
+    </Svg>
+
+  }
+}
+
+/**
+ * Support class: text ring
+ */
+interface TextRingProps {
+  slice: SliceModel,
+  radius: number
+}
+const TextRing = (props: TextRingProps) => {
+    const {slice, radius} = props;
+    const angle = slice.endAngle - slice.startAngle + 1
+
+    const x1 = 50 + radius * Math.cos((Math.PI / 180) * slice.startAngle);
+    const y1 = 50 + radius * Math.sin((Math.PI / 180) * slice.startAngle);
+    const x2 = 50 + radius * Math.cos((Math.PI / 180) * slice.endAngle);
+    const y2 = 50 + radius * Math.sin((Math.PI / 180) * slice.endAngle);
+
+    const d = `M50,50 L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
+
+    const textX = 50 + (radius + 5) * Math.cos((Math.PI / 180) * (slice.startAngle + angle / 2));
+    const textY = 50 + (radius + 5) * Math.sin((Math.PI / 180) * (slice.startAngle + angle / 2));
+
+    return (
+        <G key={slice.id + radius}>
+          <TouchableWithoutFeedback>
+            <Path
+              d={d}
+              fill='#3D67B1'
+              stroke="black"
+              strokeWidth="0.3"
+            />
+          </TouchableWithoutFeedback>
+          {/*TODO: fix text issue when you change the number of categories*/}
+          <SvgText
+            x={textX}
+            y={textY + 10}
+            fill="white"
+            fontSize="4"
+            fontWeight="bold"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            transform={`rotate(${slice.endAngle + angle + 22}, ${textX}, ${textY})`}
+          >
+            {slice.name}
+          </SvgText>
+        </G>
+  )
+}
+
+/**
+ * Support class: color ring
+ */
+interface ColorRingProps {
+  slice: SliceModel,
+  radius: number,
+  level: number,
+  onRingChange: (id:number, value:number) => void
+}
+const ColorRing = (props:ColorRingProps) => {
+    const { radius, slice, onRingChange, level} = props;
+
+    const x1 = 50 + radius * Math.cos((Math.PI / 180) * slice.startAngle);
+    const y1 = 50 + radius * Math.sin((Math.PI / 180) * slice.startAngle);
+    const x2 = 50 + radius * Math.cos((Math.PI / 180) * slice.endAngle);
+    const y2 = 50 + radius * Math.sin((Math.PI / 180) * slice.endAngle);
+
+    const d = `M50,50 L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
+
+    const colors = [
+      'white', '#DF3636', '#F3A61E', '#549B4C'
+    ]
+
+    const color = slice.ring >= level ? colors[slice.ring] : 'white'
+
+    return (
+      <G key={slice.id + radius}>
+        <TouchableWithoutFeedback onPress={() => onRingChange(slice.id, level)}>
+          <Path
+            d={d}
+            fill={color}
+            stroke="black"
+            strokeWidth="0.3"
+          />
+        </TouchableWithoutFeedback>
+      </G>
+    )
+}
+
+export default Home;
