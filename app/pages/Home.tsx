@@ -9,9 +9,14 @@ import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
 interface SliceModel {
   id: number,
   name: string,
-  ring: number,
+  value: number,
   startAngle: number,
-  endAngle: number
+  endAngle: number,
+  size: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
 }
 interface Props {
 }
@@ -58,45 +63,67 @@ export class Wheel extends React.Component<WheelProps, WheelState> {
   }
   componentDidMount = async () => {
     let slices = [
-      { id: 0, name: 'Friends', ring: 0, startAngle: 0, endAngle: 0 },
-      { id: 1, name: 'Faith', ring: 0, startAngle: 0, endAngle: 0 },
-      { id: 2, name: 'Finance', ring: 0, startAngle: 0, endAngle: 0 },
-      { id: 3,name: 'Fulfillment', ring: 0, startAngle: 0, endAngle: 0 },
-      { id: 4,name: 'Fitness', ring: 0, startAngle: 0, endAngle: 0 },
-      { id: 5,name: 'Food', ring: 0, startAngle: 0, endAngle: 0 },
-      { id: 6,name: 'Fun', ring: 0, startAngle: 0, endAngle: 0 },
-      { id: 7,name: 'Family', ring: 0, startAngle: 0, endAngle: 0 },
+      { id: 0, name: 'Friends', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
+      { id: 1, name: 'Faith', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
+      { id: 2, name: 'Finance', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
+      { id: 3,name: 'Fulfillment', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
+      { id: 4,name: 'Fitness', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
+      { id: 5,name: 'Food', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
+      { id: 6,name: 'Fun', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
+      { id: 7,name: 'Family', value: 0, startAngle: 0, endAngle: 0, size: 0, x1:0, y1:0, x2: 0, y2:0 },
     ]
     const angle = 360 / slices.length
 
     for (let i=0; i<slices.length; i++) {
       slices[i].startAngle = i * angle;
       slices[i].endAngle = (i + 1) * angle;
+      slices[i].size = slices[i].endAngle - slices[i].startAngle + 1;
+      slices[i].x1 = Math.cos((Math.PI / 180) * slices[i].startAngle);
+      slices[i].y1 = Math.sin((Math.PI / 180) * slices[i].startAngle);
+      slices[i].x2 = Math.cos((Math.PI / 180) * slices[i].endAngle);
+      slices[i].y2 = Math.sin((Math.PI / 180) * slices[i].endAngle);
     }
     this.setState({slices})
   }
 
   onRingChange(id:number, value:number) {
     let {slices} = this.state;
-    slices[id].ring = value;
+    slices[id].value = value;
     this.setState({slices})
   }
 
   render() {
     const {slices} = this.state;
-    const vSlices = slices.map((slice) =>
-      <>
-        <TextRing slice={slice} radius={57}/>
-        <ColorRing slice={slice} radius={48} level={3} onRingChange={this.onRingChange}/>
-        <ColorRing slice={slice} radius={34} level={2} onRingChange={this.onRingChange}/>
-        <ColorRing slice={slice} radius={20} level={1} onRingChange={this.onRingChange}/>
+    const radiusList = [
+      {radius: 48, level:3},
+      {radius: 34, level:2},
+      {radius: 20, level:1},
+    ]
+    const vSlices = slices.map((slice) => {
+      return <>
+        <TextRing slice={slice} radius={57} x1={50 + 57 * slice.x1} x2={50 + 57 * slice.x2} y1={50 + 57 * slice.y1}
+                  y2={50 + 57 * slice.y2} />
+        {radiusList.map((item) =>
+          <ColorRing slice={slice}
+                     radius={item.radius}
+                     level={item.level}
+                     onRingChange={this.onRingChange}
+                     x1={50 + item.radius * slice.x1}
+                     x2={50 + item.radius * slice.x2}
+                     y1={50 + item.radius * slice.y1}
+                     y2={50 + item.radius * slice.y2}
+          />
+        )}
+        {/*<ColorRing slice={slice} radius={48} level={3} onRingChange={this.onRingChange} x1={50 + 48 * slice.x1} x2={50 + 48 * slice.x2} y1={50 + 48 * slice.y1}*/}
+        {/*           y2={50 + 48 * slice.y2}/>*/}
+        {/*<ColorRing slice={slice} radius={34} level={2} onRingChange={this.onRingChange} x1={50 + 34 * slice.x1} x2={50 + 34 * slice.x2} y1={50 + 34 * slice.y1}*/}
+        {/*           y2={50 + 34 * slice.y2}/>*/}
+        {/*<ColorRing slice={slice} radius={20} level={1} onRingChange={this.onRingChange} x1={50 + 20 * slice.x1} x2={50 + 20 * slice.x2} y1={50 + 20 * slice.y1}*/}
+        {/*           y2={50 + 20 * slice.y2}/>*/}
+
       </>
-    )
+    })
     return <Svg height="360" width="360" viewBox="-8 0 116 100">
-      {/*<Circle cx="50" cy="50" r="57" fill="white" stroke="black" strokeWidth="0.5" />*/}
-      {/*<Circle cx="50" cy="50" r="48" fill="white" stroke="black" strokeWidth="0.5" />*/}
-      {/*<Circle cx="50" cy="50" r="34" fill="white" stroke="black" strokeWidth="0.5" />*/}
-      {/*<Circle cx="50" cy="50" r="20" fill="white" stroke="black" strokeWidth="0.5" />*/}
       {vSlices}
     </Svg>
 
@@ -108,21 +135,19 @@ export class Wheel extends React.Component<WheelProps, WheelState> {
  */
 interface TextRingProps {
   slice: SliceModel,
-  radius: number
+  radius: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
 }
 const TextRing = (props: TextRingProps) => {
-    const {slice, radius} = props;
-    const angle = slice.endAngle - slice.startAngle + 1
-
-    const x1 = 50 + radius * Math.cos((Math.PI / 180) * slice.startAngle);
-    const y1 = 50 + radius * Math.sin((Math.PI / 180) * slice.startAngle);
-    const x2 = 50 + radius * Math.cos((Math.PI / 180) * slice.endAngle);
-    const y2 = 50 + radius * Math.sin((Math.PI / 180) * slice.endAngle);
+    const {slice, radius, x1, x2, y1, y2} = props;
 
     const d = `M50,50 L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
 
-    const textX = 50 + (radius + 5) * Math.cos((Math.PI / 180) * (slice.startAngle + angle / 2));
-    const textY = 50 + (radius + 5) * Math.sin((Math.PI / 180) * (slice.startAngle + angle / 2));
+    const textX = 50 + (radius + 5) * Math.cos((Math.PI / 180) * (slice.startAngle + slice.size / 2));
+    const textY = 50 + (radius + 5) * Math.sin((Math.PI / 180) * (slice.startAngle + slice.size / 2));
 
     return (
         <G key={slice.id + radius}>
@@ -143,7 +168,7 @@ const TextRing = (props: TextRingProps) => {
             fontWeight="bold"
             textAnchor="middle"
             alignmentBaseline="middle"
-            transform={`rotate(${slice.endAngle + angle + 22}, ${textX}, ${textY})`}
+            transform={`rotate(${slice.endAngle + slice.size + 22}, ${textX}, ${textY})`}
           >
             {slice.name}
           </SvgText>
@@ -158,15 +183,14 @@ interface ColorRingProps {
   slice: SliceModel,
   radius: number,
   level: number,
-  onRingChange: (id:number, value:number) => void
+  onRingChange: (id:number, value:number) => void,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
 }
 const ColorRing = (props:ColorRingProps) => {
-    const { radius, slice, onRingChange, level} = props;
-
-    const x1 = 50 + radius * Math.cos((Math.PI / 180) * slice.startAngle);
-    const y1 = 50 + radius * Math.sin((Math.PI / 180) * slice.startAngle);
-    const x2 = 50 + radius * Math.cos((Math.PI / 180) * slice.endAngle);
-    const y2 = 50 + radius * Math.sin((Math.PI / 180) * slice.endAngle);
+    const { radius, slice, onRingChange, level, x1, x2, y1, y2} = props;
 
     const d = `M50,50 L${x1},${y1} A${radius},${radius} 0 0,1 ${x2},${y2} Z`;
 
@@ -174,7 +198,7 @@ const ColorRing = (props:ColorRingProps) => {
       'white', '#DF3636', '#F3A61E', '#549B4C'
     ]
 
-    const color = slice.ring >= level ? colors[slice.ring] : 'white'
+    const color = slice.value >= level ? colors[slice.value] : 'white'
 
     return (
       <G key={slice.id + radius}>
