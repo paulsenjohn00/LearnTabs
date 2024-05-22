@@ -147,7 +147,7 @@ interface ColorRingProps {
   onRingChange: (id:number, value:number) => void
 }
 const ColorRing = (props:ColorRingProps) => {
-    const { radius, slice, onRingChange, level} = props, angle = slice.endAngle - slice.startAngle + 1,
+    const { radius, slice, onRingChange, level} = props,
       x1 = 50 + radius * Math.cos((Math.PI / 180) * slice.startAngle),
       y1 = 50 + radius * Math.sin((Math.PI / 180) * slice.startAngle),
       x2 = 50 + radius * Math.cos((Math.PI / 180) * slice.endAngle),
